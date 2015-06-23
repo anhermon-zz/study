@@ -13,21 +13,23 @@ public class TextList {
 	 * @param text
 	 */
 	public TextList(String text){
-		for(String word : text.split(" "))
-			this.addToData(word);
-		this.first = mergeSort(this.first);
-	}
+        while (text != null && text.length() > 0) {
+               int index = text.indexOf(' ');
+               if (index == -1) {
+                     this.addAsHead(text); // last word
+                     break;
+               }
+               String word = text.substring(0 , index);
+               this.addAsHead(word);
+               text = text.substring(++index, text.length());
+        }
+        this.first = mergeSort(this.first);
+ }
+
 	/**
-	 * Initializes a {@link TextList} with a single {@link WordNode}
-	 * @param node
-	 */
-	public TextList(WordNode node){
-		this.first = node;
-	}
-	/**
-	 * 
-	 * @param node
-	 * @return
+	 * Recursively split and merge using divide an conquer strategy, computetional complexity is O(n log n)
+	 * @param node {@link WordNode}
+	 * @return merged {@link WordNode}
 	 */
 	private static WordNode mergeSort(WordNode node) {
 			if(node == null || node.getNext() == null) return node;
@@ -35,19 +37,43 @@ public class TextList {
 			return merge(mergeSort(pair.getWordNodeB()),(mergeSort(pair.getWordNodeA())));
 	}
 	/**
-	 * Add new word to {@link TextList}, words are added in alphabetical order, this reduces the avarage Computational complexity, as we can conclude that a word is missing from the list
-	 * as soon as we reach a word of higher alphabetical order rather then iterating over all of the elements
-	 * Computational complexity - O(n) in the worst case scenario (new word starting with z) we go over all of the elements in the list.
+	 * Add value to head of list
+	 * @param word
+	 */
+	private void addAsHead(String word){
+		WordNode node = new WordNode(word);
+		node.setNext(this.first);
+		this.first = node;
+	}
+	/**
+	 * Add new word to {@link TextList}, words are added in alphabetical order,
+	 * Computational complexity - O(n) in the worst case scenario we go over all of the elements in the list.
 	 * @param word - word to add
 	 */
 	public void addToData(String word){
 		WordNode node = new WordNode(word);
-		if(this.first == null){
+		if(this.first == null){//if list is empty set as first
 			this.first = node;
 			return;
 		}
-		node.setNext(this.first);
-		this.first = node;
+		WordNode current = this.first;
+		WordNode prev = null;
+		while(current != null){
+			if(current.getWord().compareTo(word) > 0){//set before first word with lower lexicographic value
+				node.setNext(current);
+				if(prev == null) this.first = node;
+				else prev.setNext(node);
+				return;
+			}
+			if(current.getWord().equals(word)){//if word exists in the list add to its count
+				current.setCount(current.getCount() + 1);
+				return;
+			}
+			prev = current;
+			current = current.getNext();
+		}
+		prev.setNext(node);//add to the end of the list
+		
 	}
 	/**
 	 * Word Count
@@ -56,7 +82,7 @@ public class TextList {
 		int sum = 0;
 		WordNode currentNode = first;
 		while(currentNode != null){
-			sum += currentNode.get_count();
+			sum += currentNode.getCount();
 			currentNode = currentNode.getNext();
 		}
 		return sum;
@@ -81,8 +107,8 @@ public class TextList {
 		String out = "";
 		WordNode currentNode = first;
 		while(currentNode != null){
-			if(currentNode.get_count() > max){
-				max = currentNode.get_count();
+			if(currentNode.getCount() > max){
+				max = currentNode.getCount();
 				out = currentNode.getWord();
 			}
 			currentNode = currentNode.getNext();
@@ -121,11 +147,11 @@ public class TextList {
 	 */
 	private char mostFrequentStartingLetter(int[] lettersCount, WordNode node) {
 		if (node.getNext() == null) return mostFrequentStartingLetter(lettersCount, 'a', 'a', 0);
-		lettersCount[node.getWord().charAt(0) - ASCII_ALPHABET_START_INDEX] += node.get_count();
+		lettersCount[node.getWord().charAt(0) - ASCII_ALPHABET_START_INDEX] += node.getCount();
 		return mostFrequentStartingLetter(lettersCount, node.getNext());
 	}
 	/**
-	 * recursion end, gets a finilized letter table and retuns the most frequent letter
+	 * recursion end, gets a finalized letter table and retuns the most frequent letter
 	 * @param lettersCount
 	 * @return
 	 */
@@ -140,22 +166,6 @@ public class TextList {
 		return mostFrequentStartingLetter(lettersCount,currentChar, mostFrequent, count);
 		
 	}
-//	private char mostFrequentStartingLetter(int[] lettersCount) {
-//		WordNode currentNode = first;
-//		while(currentNode != null){
-//			lettersCount[charIndexOf(currentNode.getWord().charAt(0))] += currentNode.get_count();
-//			currentNode = currentNode.getNext();
-//		}
-//		char mostFrequentChar = 'a';
-//		int max = 0;
-//		for (int i = 0; i < lettersCount.length; i++) {
-//			if(lettersCount[i] > max){
-//				max = lettersCount[i];
-//				mostFrequentChar = indexCharOf(i);
-//			}
-//		}
-//		return mostFrequentChar;
-//}
 	@Override
 	public String toString() {
 		String out = "";
@@ -163,11 +173,17 @@ public class TextList {
 		while(current != null){
 			if(out.length() > 0)
 				out += "\n";
-			out = out.concat(current.getWord() + "\t" + current.get_count());
+			out = out.concat(current.getWord() + "\t" + current.getCount());
 			current = current.getNext();
 		}
 		return out;
 	}
+	/**
+	 * merge 2 {@link WordNode} into a aingle sorted {@link WordNode}
+	 * @param left {@link WordNode}
+	 * @param right {@link WordNode}
+	 * @return merged {@link WordNode}
+	 */
 	private static WordNode merge (WordNode left, WordNode right) {
 		WordNode out;
 		if(right == null)
@@ -180,10 +196,10 @@ public class TextList {
 		else if(left.getWord().compareTo(right.getWord()) == 0){
 			if(left.getNext() == null){
 				out = new WordNode(left.getWord(), right.getNext());
-				out.addWord();
+				out.setCount(out.getCount() + right.getCount());
 			}else{
 				out = new WordNode(left.getWord(), merge(left.getNext(),right.getNext()));
-				out.addWord();
+				out.setCount(out.getCount() + right.getCount());
 			}
 			return out;
 		}
@@ -191,19 +207,13 @@ public class TextList {
 			return new WordNode(right.getWord(), merge(left,right.getNext()));
 	}
 	/**
-	 * 
-	 * @return
+	 * Recursively split a list of {@link WordNode} to 2 sub lists
+	 * @return {@link WordNodePair}
 	 */
 	private static WordNodePair split(WordNode node) {
 		if(node.getNext() == null)
 			return new WordNodePair(node, null);
 		WordNodePair pair = split(node.getNext());
 		return new WordNodePair(new WordNode(node.getWord(),pair.getWordNodeB()),pair.getWordNodeA()); 
-	}
-	public static void main(String[] args) {
-		TextList tl = new TextList("anything you can do i can do better");
-		System.out.println(tl);
-		//System.out.println(tl.mostFrequentStartingLetter());
-		
 	}
 }

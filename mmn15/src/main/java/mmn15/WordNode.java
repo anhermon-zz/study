@@ -37,12 +37,6 @@ public class WordNode {
 		this._next = next;
 	}
 	/**
-	 * Add to word counter
-	 */
-	public void addWord(){
-		this._count++;
-	}
-	/**
 	 * Checks if the next node is not empty
 	 */
 	public boolean hasNext(){
@@ -63,10 +57,10 @@ public class WordNode {
 	}
 
 
-	public int get_count() {
+	public int getCount() {
 		return _count;
 	}
-	public void set_count(int _count) {
+	public void setCount(int _count) {
 		this._count = _count;
 	}
 }
