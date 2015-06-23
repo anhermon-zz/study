@@ -41,6 +41,7 @@ public class TextList {
 	 * @param word
 	 */
 	private void addAsHead(String word){
+		if(word == null || word.length() == 0 || word.equals(" ")) return;
 		WordNode node = new WordNode(word);
 		node.setNext(this.first);
 		this.first = node;
@@ -51,6 +52,7 @@ public class TextList {
 	 * @param word - word to add
 	 */
 	public void addToData(String word){
+		if(word == null || word.length() == 0 || word.equals(" ")) return;
 		WordNode node = new WordNode(word);
 		if(this.first == null){//if list is empty set as first
 			this.first = node;
@@ -95,7 +97,7 @@ public class TextList {
 		WordNode currentNode = first;
 		while(currentNode != null){
 			count += 1;
-			currentNode.getNext();
+			currentNode = currentNode.getNext();
 		}
 		return count;
 	}
@@ -124,8 +126,8 @@ public class TextList {
 		int count = 0;
 		WordNode currentNode = first;
 		while(currentNode != null){
-			if(currentNode.getWord().charAt(0) == letter)
-				count++;
+			if(currentNode.getWord() != null && currentNode.getWord().length() > 0 && currentNode.getWord().charAt(0) == letter)
+				count += currentNode.getCount();
 			currentNode = currentNode.getNext();
 		}
 		return count;
@@ -146,7 +148,7 @@ public class TextList {
 	 * @return
 	 */
 	private char mostFrequentStartingLetter(int[] lettersCount, WordNode node) {
-		if (node.getNext() == null) return mostFrequentStartingLetter(lettersCount, 'a', 'a', 0);
+		if (node == null) return mostFrequentStartingLetter(lettersCount, 'a', ' ', 0);
 		lettersCount[node.getWord().charAt(0) - ASCII_ALPHABET_START_INDEX] += node.getCount();
 		return mostFrequentStartingLetter(lettersCount, node.getNext());
 	}
@@ -156,6 +158,7 @@ public class TextList {
 	 * @return
 	 */
 	private char mostFrequentStartingLetter(int[] lettersCount, char currentChar, char mostFrequent, int count) {
+		//System.out.println("mostFrequentStartingLetter>" + currentChar + " mostFrequent>" + mostFrequent);
 		int index = currentChar - ASCII_ALPHABET_START_INDEX;
 		if(lettersCount[index] > count){
 			mostFrequent = currentChar;
@@ -190,21 +193,21 @@ public class TextList {
 			return left;		
 		if(left.getWord().compareTo(right.getWord()) < 0)
 			if(left.getNext() == null)
-				return new WordNode(left.getWord(), right);
+				return new WordNode(left , right);
 			else
-				return new WordNode(left.getWord(), merge(left.getNext(), right));
+				return new WordNode(left , merge(left.getNext(), right));
 		else if(left.getWord().compareTo(right.getWord()) == 0){
 			if(left.getNext() == null){
-				out = new WordNode(left.getWord(), right.getNext());
-				out.setCount(out.getCount() + right.getCount());
+				out = new WordNode(left , right.getNext());
+				out.setCount(left.getCount() + right.getCount());
 			}else{
-				out = new WordNode(left.getWord(), merge(left.getNext(),right.getNext()));
-				out.setCount(out.getCount() + right.getCount());
+				out = new WordNode(left , merge(left.getNext(),right.getNext()));
+				out.setCount(left.getCount() + right.getCount());
 			}
 			return out;
 		}
 		else
-			return new WordNode(right.getWord(), merge(left,right.getNext()));
+			return new WordNode(right, merge(left,right.getNext()));
 	}
 	/**
 	 * Recursively split a list of {@link WordNode} to 2 sub lists

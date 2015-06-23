@@ -16,6 +16,12 @@ public class WordNode {
 		this._count = 1;
 		this._next = next;
 	}
+	
+	public WordNode(WordNode word, WordNode next){
+		this._word = word.getWord();
+		this._count = word.getCount();
+		this._next = next;
+	}
 	///////////
 	// Getters Setters
 	////////////
